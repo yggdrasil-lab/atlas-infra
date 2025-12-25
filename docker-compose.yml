@@ -16,32 +16,6 @@ services:
     networks:
       - aether-net
 
-  obsidian:
-    image: lscr.io/linuxserver/obsidian:latest
-    container_name: obsidian
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - CUSTOM_USER=${OBSIDIAN_USER}
-      - PASSWORD=${OBSIDIAN_PASSWORD}
-    volumes:
-      - ${OBSIDIAN_CONFIG_PATH}:/config
-      - ${OBSIDIAN_VAULT_PATH}:/data
-    networks:
-      - aether-net
-    shm_size: "2gb"
-    security_opt:
-      - "no-new-privileges:false"
-      - "seccomp:unconfined"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.obsidian.rule=Host(`${OBSIDIAN_SUBDOMAIN}.${DOMAIN_NAME}`)"
-      - "traefik.http.routers.obsidian.entrypoints=websecure"
-      - "traefik.http.routers.obsidian.tls.certresolver=myresolver"
-      - "traefik.http.services.obsidian.loadbalancer.server.port=3000"
-
   git-backup:
     build:
       context: .
