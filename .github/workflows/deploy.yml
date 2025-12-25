@@ -1,0 +1,40 @@
+name: Deploy Atlas Infra
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          # Create/Overwrite .env file
+          echo "RCLONE_CONFIG_GDRIVE_TYPE=${{ vars.RCLONE_CONFIG_GDRIVE_TYPE }}" > .env
+          echo "RCLONE_CONFIG_GDRIVE_SCOPE=${{ vars.RCLONE_CONFIG_GDRIVE_SCOPE }}" >> .env
+          # Wrap JSON token in single quotes to prevent parsing errors
+          echo "RCLONE_CONFIG_GDRIVE_TOKEN='${{ secrets.RCLONE_CONFIG_GDRIVE_TOKEN }}'" >> .env
+          echo "DOMAIN_NAME=${{ vars.DOMAIN_NAME }}" >> .env
+          echo "OBSIDIAN_SUBDOMAIN=${{ vars.OBSIDIAN_SUBDOMAIN }}" >> .env
+          echo "PUID=${{ vars.PUID }}" >> .env
+          echo "PGID=${{ vars.PGID }}" >> .env
+          echo "OBSIDIAN_VAULT_PATH=${{ vars.OBSIDIAN_VAULT_PATH }}" >> .env
+          echo "RCLONE_CACHE_PATH=${{ vars.RCLONE_CACHE_PATH }}" >> .env
+          echo "OBSIDIAN_CONFIG_PATH=${{ vars.OBSIDIAN_CONFIG_PATH }}" >> .env
+          echo "TZ=${{ vars.TZ }}" >> .env
+          echo "OBSIDIAN_USER=${{ secrets.OBSIDIAN_USER }}" >> .env
+          echo "OBSIDIAN_PASSWORD=${{ secrets.OBSIDIAN_PASSWORD }}" >> .env
+          echo "GIT_REPO_URL=${{ vars.GIT_REPO_URL }}" >> .env
+          echo "GIT_USER_EMAIL=${{ vars.GIT_USER_EMAIL }}" >> .env
+          echo "GIT_USER_NAME=${{ vars.GIT_USER_NAME }}" >> .env
+          echo "GDRIVE_VAULT_PATH=${{ vars.GDRIVE_VAULT_PATH }}" >> .env
+          echo "HOST_SSH_PATH=${{ vars.HOST_SSH_PATH }}" >> .env
+
+      - name: Deploy with Docker Compose
+        run: |
+          docker compose up -d --remove-orphans

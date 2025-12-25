@@ -14,25 +14,6 @@ services:
     networks:
       - aether-net
 
-  kratos:
-    image: ghcr.io/raymundmt/kratos-backend:main
-    container_name: kratos
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - VAULT_ROOT_PATH=/data/vault
-    volumes:
-      - ${OBSIDIAN_VAULT_PATH}:/data/vault
-    networks:
-      - aether-net
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.kratos.rule=Host(`kratos.tienzo.net`)"
-      - "traefik.http.routers.kratos.entrypoints=websecure"
-      - "traefik.http.routers.kratos.tls.certresolver=myresolver"
-      - "traefik.http.services.kratos.loadbalancer.server.port=8000"
-
   obsidian:
     image: lscr.io/linuxserver/obsidian:latest
     container_name: obsidian
@@ -54,7 +35,7 @@ services:
       - "seccomp:unconfined"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.obsidian.rule=Host(`atlas.tienzo.net`)"
+      - "traefik.http.routers.obsidian.rule=Host(`${OBSIDIAN_SUBDOMAIN}.${DOMAIN_NAME}`)"
       - "traefik.http.routers.obsidian.entrypoints=websecure"
       - "traefik.http.routers.obsidian.tls.certresolver=myresolver"
       - "traefik.http.services.obsidian.loadbalancer.server.port=3000"
@@ -67,10 +48,6 @@ services:
     entrypoint: /bin/sh
     command: -c '
         git config --global --add safe.directory /data;
-        echo "Setting up SSH key from environment variable...";
-        mkdir -p /root/.ssh;
-        echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa;
-        chmod 600 /root/.ssh/id_rsa;
         echo "Starting backup script...";
         exec /usr/local/bin/git-backup.sh;
       '
@@ -78,10 +55,10 @@ services:
       - GIT_REPO_URL=${GIT_REPO_URL}
       - GIT_USER_EMAIL=${GIT_USER_EMAIL}
       - GIT_USER_NAME=${GIT_USER_NAME}
-      - SSH_PRIVATE_KEY=${SSH_PRIVATE_KEY}
     volumes:
       - ${OBSIDIAN_VAULT_PATH}:/data
       - ./git-backup.sh:/usr/local/bin/git-backup.sh
+      - ${HOST_SSH_PATH}:/root/.ssh:ro
 
 networks:
   aether-net:
