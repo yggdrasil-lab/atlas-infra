@@ -2,15 +2,17 @@ version: '3.8'
 
 services:
   rclone:
-    image: rclone/rclone:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.rclone
     container_name: rclone
     restart: unless-stopped
     env_file: .env
     volumes:
       - ${OBSIDIAN_VAULT_PATH}:/data
       - ${RCLONE_CACHE_PATH}:/root/.cache/rclone
-      - ./entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    entrypoint: /bin/sh
+    command: /entrypoint.sh
     networks:
       - aether-net
 
@@ -41,7 +43,9 @@ services:
       - "traefik.http.services.obsidian.loadbalancer.server.port=3000"
 
   git-backup:
-    image: alpine/git:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.git
     container_name: git_backup
     restart: unless-stopped
     working_dir: /git
@@ -49,7 +53,7 @@ services:
     command: -c '
         git config --global --add safe.directory /git;
         echo "Starting backup script...";
-        exec /usr/local/bin/git-backup.sh;
+        /usr/local/bin/git-backup.sh;
       '
     environment:
       - GIT_REPO_URL=${GIT_REPO_URL}
@@ -57,7 +61,6 @@ services:
       - GIT_USER_NAME=${GIT_USER_NAME}
     volumes:
       - ${OBSIDIAN_VAULT_PATH}:/git
-      - ./git-backup.sh:/usr/local/bin/git-backup.sh
       - ${HOST_SSH_PATH}:/mnt/ssh_keys:ro
 
 networks:
