@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
     working_dir: /git
     healthcheck:
-      test: ["CMD", "test", "-f", ".git/HEAD"]
+      test: ["CMD", "test", "-f", ".git_ready"]
       interval: 10s
       timeout: 5s
       retries: 5

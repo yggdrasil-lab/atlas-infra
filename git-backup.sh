@@ -43,6 +43,12 @@ fi
 # Always ensure the remote URL is up-to-date
 git remote set-url origin "${GIT_REPO_URL}"
 
+echo "Pulling latest changes..."
+git pull origin main || echo "Initial pull failed."
+
+# Signal readiness for healthcheck
+touch .git_ready
+
 # Main backup loop
 while true; do
   echo "[$(date)] --- Starting hourly backup check ---"
@@ -53,11 +59,16 @@ while true; do
   # Check if there are any changes to commit
   if git diff --staged --quiet; then
     echo "No changes detected in the vault. Skipping commit."
+    # Still try to pull to keep up to date
+    git pull origin main || echo "Periodic pull failed."
   else
     echo "Changes detected. Committing and pushing to remote."
     # Commit changes with a timestamp
     git commit -m "Hourly Vault Backup: $(date)"
     
+    # Pull latest changes before pushing to avoid conflicts
+    git pull --rebase origin main || echo "Pull --rebase failed, attempting push anyway..."
+
     # Push changes to the remote repository
     # The -u flag sets the upstream branch for the current branch
     git push -u origin main
