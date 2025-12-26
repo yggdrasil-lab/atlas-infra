@@ -7,9 +7,12 @@ services:
       dockerfile: Dockerfile.rclone
     container_name: rclone
     restart: unless-stopped
+    depends_on:
+      git-backup:
+        condition: service_healthy
     env_file: .env
     volumes:
-      - ${OBSIDIAN_VAULT_PATH}:/data
+      - ${OBSIDIAN_VAULT_PATH}/second-brain:/data
       - ${RCLONE_CACHE_PATH}:/root/.cache/rclone
     entrypoint: /bin/sh
     command: /entrypoint.sh
@@ -23,6 +26,11 @@ services:
     container_name: git_backup
     restart: unless-stopped
     working_dir: /git
+    healthcheck:
+      test: ["CMD", "test", "-f", ".git/HEAD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     entrypoint: /bin/sh
     command: -c '
         git config --global --add safe.directory /git;

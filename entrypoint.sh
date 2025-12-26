@@ -9,9 +9,3 @@ else
     echo "Subsequent run: Syncing changes..."
     rclone bisync "gdrive:${GDRIVE_VAULT_PATH}" /data --verbose --create-empty-src-dirs
 fi
-
-# (Optional) If you want it to keep running every 5 minutes:
-# while true; do
-#   rclone bisync "gdrive:${GDRIVE_VAULT_PATH}" /data --verbose --create-empty-src-dirs
-#   sleep 300
-# done

@@ -33,10 +33,11 @@ chmod 600 /root/.ssh/known_hosts
 
 # Initialize git repository if it doesn't exist
 if [ ! -d ".git" ]; then
-  echo "No .git directory found. Initializing a new repository."
+  echo "No .git directory found. Connecting to existing repository..."
   git init
-  git branch -m main
   git remote add origin "${GIT_REPO_URL}"
+  git fetch
+  git checkout -f main || git checkout -b main
 fi
 
 # Always ensure the remote URL is up-to-date
