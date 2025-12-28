@@ -66,25 +66,48 @@ trap 'shutdown_handler' SIGTERM SIGINT
 while [ "$STOP_REQUESTED" = false ]; do
   echo "[$(date)] --- Starting hourly backup check ---"
   
-  # Add all changes to staging
+  # 1. Pull latest changes FIRST.
+  echo "Pulling latest changes from remote..."
+  if ! git pull --ff-only origin main; then
+    echo "Standard pull failed (not fast-forward). Attempting to resolve by prioritizing local state..."
+    
+    # User instruction: "forcefully rebase and I want to keep the current changes"
+    # Strategy: Commit local changes, then rebase our commits on top of origin, favoring 'theirs' (our local) in conflicts.
+    
+    git add .
+    # Allow empty commits in case the diff is trivial but git was confused
+    git commit --allow-empty -m "Pre-rebase save: $(date)"
+    
+    # Rebase using 'theirs' strategy. 
+    # In a rebase, 'theirs' refers to the current branch commits being replayed (our local content).
+    if ! git pull --rebase -X theirs origin main; then
+       echo "Critical: Rebase failed even with strategy options. Aborting this cycle."
+       # We don't exit, just loop around and try again later/sleep
+    else
+       echo "Rebase successful. Local state preserved."
+    fi
+  fi
+
+  # 2. Add all current local files to staging
   git add .
   
-  # Check if there are any changes to commit
+  # 3. Check if there are any changes to commit (after the pull)
   if git diff --staged --quiet; then
-    echo "No changes detected in the vault. Skipping commit."
-    # Still try to pull to keep up to date
-    git pull origin main || echo "Periodic pull failed."
+    echo "No local changes to backup."
   else
     echo "Changes detected. Committing and pushing to remote."
     # Commit changes with a timestamp
     git commit -m "Hourly Vault Backup: $(date)"
     
-    # Pull latest changes before pushing to avoid conflicts
-    git pull --rebase origin main || echo "Pull --rebase failed, attempting push anyway..."
-
     # Push changes to the remote repository
-    git push -u origin main
-    echo "Successfully pushed changes to the remote repository."
+    # If push fails, we try to pull --rebase once to resolve simple races
+    if ! git push -u origin main; then
+        echo "Push failed. Attempting rebase and retry..."
+        git pull --rebase origin main
+        git push -u origin main || echo "Push failed after rebase."
+    else
+        echo "Successfully pushed changes to the remote repository."
+    fi
   fi
   
   echo "Backup check complete. Sleeping for 1 hour..."
