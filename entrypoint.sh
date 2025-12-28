@@ -20,10 +20,10 @@ while [ "$STOP_REQUESTED" = false ]; do
     # If the cache doesn't exist, we run with --resync
     if [ ! -d "/root/.cache/rclone/bisync" ]; then
         echo "First run: Initializing with --resync..."
-        rclone bisync "gdrive:${GDRIVE_VAULT_PATH}" /data --verbose --resync --create-empty-src-dirs
+        rclone bisync "gdrive:${GDRIVE_VAULT_PATH}" /data --verbose --checksum --resync --create-empty-src-dirs
     else
         echo "Subsequent run: Syncing changes..."
-        rclone bisync "gdrive:${GDRIVE_VAULT_PATH}" /data --verbose --create-empty-src-dirs
+        rclone bisync "gdrive:${GDRIVE_VAULT_PATH}" /data --verbose --checksum --create-empty-src-dirs
     fi
 
     echo "Sync complete. Sleeping for 30 seconds..."
