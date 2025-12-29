@@ -24,7 +24,7 @@ jobs:
           GIT_USER_NAME: ${{ vars.GIT_USER_NAME }}
           GDRIVE_VAULT_PATH: ${{ vars.GDRIVE_VAULT_PATH }}
           HOST_SSH_PATH: ${{ vars.HOST_SSH_PATH }}
-          BACKUP_SOURCE_NAME: ${{ vars.BACKUP_SOURCE_NAME }}
+          ENV: ${{ vars.ENV }}
         run: |
           echo "RCLONE_CONFIG_GDRIVE_TYPE=${RCLONE_CONFIG_GDRIVE_TYPE}" >> .env
           echo "RCLONE_CONFIG_GDRIVE_SCOPE=${RCLONE_CONFIG_GDRIVE_SCOPE}" >> .env
@@ -36,7 +36,7 @@ jobs:
           echo "GIT_USER_NAME=${GIT_USER_NAME}" >> .env
           echo "GDRIVE_VAULT_PATH=${GDRIVE_VAULT_PATH}" >> .env
           echo "HOST_SSH_PATH=${HOST_SSH_PATH}" >> .env
-          echo "BACKUP_SOURCE_NAME=${BACKUP_SOURCE_NAME}" >> .env
+          echo "ENV=${ENV}" >> .env
 
       - name: Deploy with Docker Compose
         run: |

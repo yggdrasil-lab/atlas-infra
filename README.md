@@ -60,6 +60,7 @@ Ensure SSH keys are available in the path defined by `HOST_SSH_PATH`.
 Required `.env` variables:
 - `GIT_REPO_URL`: Destination repository.
 - `GIT_USER_EMAIL` & `GIT_USER_NAME`: Git identity.
+- `ENV`: (Optional) Environment identifier to prepend to commit messages (e.g., `prod`, `dev`).
 
 ## Execution
 

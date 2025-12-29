@@ -97,11 +97,15 @@ while [ "$STOP_REQUESTED" = false ]; do
   else
     echo "Changes detected. Committing and pushing to remote."
     
-    # Identify source
-    SOURCE_TAG="${BACKUP_SOURCE_NAME:-Unknown Source}"
+    # Construct commit message prefix based on ENV
+    if [ -n "$ENV" ]; then
+        PREFIX="[${ENV}] "
+    else
+        PREFIX=""
+    fi
     
-    # Commit changes with a timestamp and source identifier
-    git commit -m "Hourly Vault Backup from [${SOURCE_TAG}]: $(date)"
+    # Commit changes with a timestamp and optional source identifier
+    git commit -m "${PREFIX}Hourly Vault Backup: $(date)"
     
     # Push changes to the remote repository
     # If push fails, we try to pull --rebase once to resolve simple races

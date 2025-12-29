@@ -45,7 +45,7 @@ services:
       - GIT_REPO_URL=${GIT_REPO_URL}
       - GIT_USER_EMAIL=${GIT_USER_EMAIL}
       - GIT_USER_NAME=${GIT_USER_NAME}
-      - BACKUP_SOURCE_NAME=${BACKUP_SOURCE_NAME}
+      - ENV=${ENV}
     volumes:
       - ${OBSIDIAN_VAULT_PATH}:/git
       - ${HOST_SSH_PATH}:/mnt/ssh_keys:ro
