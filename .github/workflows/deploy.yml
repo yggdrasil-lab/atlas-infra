@@ -24,6 +24,7 @@ jobs:
           GIT_USER_NAME: ${{ vars.GIT_USER_NAME }}
           GDRIVE_VAULT_PATH: ${{ vars.GDRIVE_VAULT_PATH }}
           HOST_SSH_PATH: ${{ vars.HOST_SSH_PATH }}
+          BACKUP_SOURCE_NAME: ${{ vars.BACKUP_SOURCE_NAME }}
         run: |
           docker compose down --remove-orphans || true
           docker compose up -d --build --remove-orphans

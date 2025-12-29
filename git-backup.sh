@@ -96,8 +96,12 @@ while [ "$STOP_REQUESTED" = false ]; do
     echo "No local changes to backup."
   else
     echo "Changes detected. Committing and pushing to remote."
-    # Commit changes with a timestamp
-    git commit -m "Hourly Vault Backup: $(date)"
+    
+    # Identify source
+    SOURCE_TAG="${BACKUP_SOURCE_NAME:-Unknown Source}"
+    
+    # Commit changes with a timestamp and source identifier
+    git commit -m "Hourly Vault Backup from [${SOURCE_TAG}]: $(date)"
     
     # Push changes to the remote repository
     # If push fails, we try to pull --rebase once to resolve simple races
