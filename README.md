@@ -64,6 +64,14 @@ Required `.env` variables:
 
 ## Execution
 
+### Quick Start (Development)
+For a simplified startup that handles network creation and log following:
+```bash
+./start_dev.sh
+```
+
+### Manual Execution
+If you prefer to run commands manually:
 ```bash
 docker-compose up -d
 ```
