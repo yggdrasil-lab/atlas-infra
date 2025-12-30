@@ -172,3 +172,5 @@ $RECYCLE.BIN/
 data
 config
 cache
+
+docker-compose.override.yml
