@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, gaia]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
