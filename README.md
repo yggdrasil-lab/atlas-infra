@@ -35,17 +35,9 @@ The system operates using two primary mechanisms:
   docker network create aether-net
   ```
 
-## Setup Instructions
+## Configuration
 
-### 1. Initialize the Environment
-
-```bash
-git clone <your-repository-url> charon
-cd charon
-cp .env.example .env
-```
-
-### 2. Configure rclone
+### Rclone Configuration
 
 Generate a token locally (`rclone config`) and map the values to your `.env`:
 ```env
@@ -54,7 +46,7 @@ RCLONE_CONFIG_GDRIVE_SCOPE=drive
 RCLONE_CONFIG_GDRIVE_TOKEN={"access_token":"...","refresh_token":"..."}
 ```
 
-### 3. Configure Git
+### Git Configuration
 
 Ensure SSH keys are available in the path defined by `HOST_SSH_PATH`.
 Required `.env` variables:
@@ -62,18 +54,40 @@ Required `.env` variables:
 - `GIT_USER_EMAIL` & `GIT_USER_NAME`: Git identity.
 - `ENV`: (Optional) Environment identifier to prepend to commit messages (e.g., `prod`, `dev`).
 
-## Execution
+## Deployment
 
-### Quick Start (Development)
-For a simplified startup that handles network creation and log following:
+### 1. Initialize Submodules
+This repository uses `ops-scripts` for standardized deployment logic.
+```bash
+git submodule update --init --recursive
+```
+
+### 2. Configure Environment
+1. Copy the example configuration:
+   ```bash
+   cp .env.example .env
+   ```
+2. Populate the `.env` file with your credentials (see **Configuration** below).
+
+### 3. Launch
+We provide standardized scripts for both production and development environments.
+
+**Production (Manager Node):**
+Deploy as a Docker Swarm stack (managed by `ops-scripts`):
+```bash
+./scripts/deploy.sh "charon" docker-compose.yml
+```
+
+**Development:**
+Run locally with environment loading:
 ```bash
 ./start_dev.sh
 ```
 
-### Manual Execution
-If you prefer to run commands manually:
+### Manual Execution (Advanced)
+You can invoke the deployment script directly:
 ```bash
-docker-compose up -d
+./scripts/deploy.sh "charon" docker-compose.yml
 ```
 
 ## Services
