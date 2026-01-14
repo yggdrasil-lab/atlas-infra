@@ -72,7 +72,6 @@ networks:
     external: true
   internal:
     driver: overlay
-    internal: true
 
 secrets:
   charon_rclone_config:
