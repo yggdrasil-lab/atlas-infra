@@ -54,6 +54,15 @@ Load it as a secret:
 echo "$(cat rclone.conf)" | ./scripts/ensure_secret.sh charon_rclone_config
 ```
 
+### 3. Token Refresh & Immutability (Important)
+Rclone requires write access to its configuration file to update OAuth tokens (e.g., Google Drive access tokens). However, Docker Secrets are read-only.
+**Strategy Used:**
+1.  **Secret Injection:** The initial `rclone.conf` (with your first token) is injected as a read-only Docker Secret at `/run/secrets/charon_rclone_config`.
+2.  **Ephemerality (Tmpfs):** The container mounts `/tmp` as a `tmpfs` (RAM Disk).
+3.  **Runtime Copy:** On startup, `entrypoint.sh` copies the secret to `/tmp/rclone.conf` (Writable RAM).
+4.  **Security:** This ensures your unencrypted config **never touches the physical disk** and is instantly destroyed when the container stops.
+*Note: If the container restarts, it reverts to the token in the Secret. Since Google Drive tokens are long-lived, this is acceptable.*
+
 **2. SSH Key:**
 Load your private SSH key for Git access:
 ```bash
@@ -114,3 +123,18 @@ You can invoke the deployment script directly:
 - **rclone**: Bi-directional sync with Google Drive.
 - **git-backup**: Hourly history commits.
 - **S3-Backup**: (Future) Encrypted archival to AWS S3.
+
+## Troubleshooting
+
+### Sync Issues: "Nothing to transfer"
+If `rclone` reports "Nothing to transfer" even when files have changed, check your **`GDRIVE_VAULT_PATH`** variable.
+- **Incorrect:** `"Second Brain/second-brain"` (Quotes included in value)
+- **Correct:** `Second Brain/second-brain` (No quotes)
+
+**Why?** If you include quotes in GitHub Environment Variables or `.env`, `rclone` may interpret them as part of the directory name, causing a path mismatch. Ensure the variable is set correctly at the source.
+
+### Network Issues: "Network not found"
+If you see errors like `network charon_default not found` during rapid redeployments:
+- This stack uses an explicit **`internal`** overlay network.
+- The `ops-scripts/deploy.sh` logic specifically waits for `${STACK_NAME}_internal` to be removed.
+- Ensure your `docker-compose.yml` defines the network as `internal` (not `default`) to align with this logic.
