@@ -21,8 +21,7 @@ services:
     volumes:
       - ${OBSIDIAN_VAULT_PATH}/second-brain:/data
       - ${RCLONE_CACHE_PATH}/sync:/root/.cache/rclone
-    tmpfs:
-      - /tmp
+
     entrypoint: /bin/sh
     command: /entrypoint.sh
     networks:
@@ -49,8 +48,7 @@ services:
     volumes:
       - /mnt/storage/backups:/data
       - ${RCLONE_CACHE_PATH}/archive:/root/.cache/rclone
-    tmpfs:
-      - /tmp
+
     entrypoint: /bin/sh
     # Cron strategy: Setup config -> Create crontab -> Run cron in foreground
     # Job 1 (03:00): Push new backups (COPY, not sync, to preserve history if local is pruned)
